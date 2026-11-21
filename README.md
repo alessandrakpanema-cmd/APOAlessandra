@@ -1,0 +1,94 @@
+CREATE DATABASE IF NOT EXISTS logistica;
+USE logistica;
+
+CREATE TABLE produtos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    descricao TEXT,
+    peso DECIMAL(10,2),
+    quantidade INT,
+    valor DECIMAL(10,2)
+);
+
+CREATE TABLE enderecos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100),
+    cep VARCHAR(10),
+    rua VARCHAR(150),
+    numero VARCHAR(20),
+    bairro VARCHAR(100),
+    cidade VARCHAR(100),
+    estado VARCHAR(2),
+    tipo ENUM('origem','destino') NOT NULL
+);
+
+CREATE TABLE transportadores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    documento VARCHAR(20),
+    telefone VARCHAR(20),
+    email VARCHAR(150),
+    veiculo VARCHAR(100),
+    placa VARCHAR(10)
+);
+
+CREATE TABLE fretes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transportador_id INT NOT NULL,
+    origem_id INT NOT NULL,
+    destino_id INT NOT NULL,
+    data_frete DATE NOT NULL,
+    valor DECIMAL(10,2),
+    status VARCHAR(30) DEFAULT 'Pendente',
+    FOREIGN KEY (transportador_id) REFERENCES transportadores(id),
+    FOREIGN KEY (origem_id) REFERENCES enderecos(id),
+    FOREIGN KEY (destino_id) REFERENCES enderecos(id)
+);
+
+CREATE TABLE frete_produtos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    frete_id INT NOT NULL,
+    produto_id INT NOT NULL,
+    quantidade INT NOT NULL,
+    FOREIGN KEY (frete_id) REFERENCES fretes(id),
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
+Clique em Executar.
+
+Pronto! O banco de dados está criado.
+
+5. Faça a conexão do PHP com o banco
+Abra o arquivo:
+
+config/conexao.php
+
+Cole o seguinte código:
+
+
+php
+
+<?php
+
+$servidor = "localhost";
+$banco = "logistica";
+$usuario = "root";
+$senha = "";
+
+try {
+
+    $pdo = new PDO(
+        "mysql:host=$servidor;dbname=$banco;charset=utf8mb4",
+        $usuario,
+        $senha
+    );
+
+    $pdo->setAttribute(
+        PDO::ATTR_ERRMODE,
+        PDO::ERRMODE_EXCEPTION
+    );
+
+} catch (PDOException $e) {
+
+    die("Erro na conexão: " . $e->getMessage());
+
+}
